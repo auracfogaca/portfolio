@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Design Weekly Reporter — Aura Fogaça</title>
+<meta name="description" content="An AI agent that aggregates Slack, JIRA, Figma and Calendar data weekly, synthesises via Claude API, and posts structured design reports — saving 30min/week with 100% format consistency."/>
+<meta name="robots" content="index, follow"/>
+<meta name="author" content="Aura Fogaca"/>
+<meta property="og:type" content="article"/>
+<meta property="og:title" content="Design Weekly Reporter — Aura Fogaça"/>
+<meta property="og:description" content="An AI agent that aggregates Slack, JIRA, Figma and Calendar data weekly, synthesises via Claude API, and posts structured design reports — saving 30min/week with 100% format consistency."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+<link rel="stylesheet" href="../css/styles.css" />
+<style>
+/* ── back button ───────────────────────────────────────── */
+.case-back{
+  position:fixed; top:18px; left:clamp(20px,5vw,80px);
+  z-index:200; display:inline-flex; align-items:center; gap:10px;
+  font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--gray);
+  border:1px solid var(--line-2); padding:9px 14px; border-radius:2px;
+  background:rgba(7,7,10,.75); backdrop-filter:blur(8px);
+  transition:color .25s, border-color .25s; text-decoration:none;
+}
+.case-back:hover{ color:var(--fg); border-color:var(--phosphor); }
+.case-back .arr{ display:inline-block; transition:transform .25s var(--ease); }
+.case-back:hover .arr{ transform:translateX(-4px); }
+
+/* ── hero ──────────────────────────────────────────────── */
+.case-hero{
+  min-height:100vh; display:flex; flex-direction:column;
+  padding:120px clamp(20px,5vw,80px) 0;
+  position:relative; border-bottom:1px solid var(--line);
+  overflow:hidden;
+}
+.case-tag{
+  font-family:var(--mono); font-size:11px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--dim); margin-bottom:24px;
+  display:flex; align-items:center; gap:16px;
+}
+.case-tag::before{ content:''; width:30px; height:1px; background:var(--line-2); }
+.case-hero h1{
+  font-size:clamp(36px,6.5vw,100px); font-weight:800;
+  letter-spacing:-.03em; line-height:.92; color:var(--fg);
+  margin:0; max-width:14ch;
+}
+.hero-graph{
+  flex:1; min-height:280px; display:flex; align-items:center;
+  justify-content:center; padding:40px 0 0;
+}
+#node-canvas{ max-width:100%; }
+.case-meta-row{
+  display:flex; gap:clamp(30px,6vw,80px); flex-wrap:wrap;
+  border-top:1px solid var(--line); padding:32px 0 40px;
+  margin-top:auto;
+}
+.case-meta-item{ display:flex; flex-direction:column; gap:8px; }
+.case-meta-item .label{
+  font-family:var(--mono); font-size:10px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--dim);
+}
+.case-meta-item .val{
+  font-family:var(--mono); font-size:13px; letter-spacing:.06em; color:var(--fg-soft);
+}
+
+/* ── body ──────────────────────────────────────────────── */
+.case-body{ max-width:960px; margin:0 auto; padding:0 clamp(20px,5vw,80px) 160px; }
+.case-section{ padding:80px 0; border-bottom:1px solid var(--line); }
+.case-section:last-child{ border-bottom:none; }
+.cs-label{
+  font-family:var(--mono); font-size:10px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--dim); margin-bottom:32px;
+  display:flex; align-items:center; gap:14px;
+}
+.cs-label::before{ content:''; width:24px; height:1px; background:var(--line-2); }
+.case-section h2{
+  font-size:clamp(22px,3.2vw,40px); font-weight:700;
+  letter-spacing:-.02em; line-height:1.1; color:var(--fg); margin:0 0 24px;
+}
+.case-section p{
+  font-size:clamp(14px,1.4vw,16px); color:var(--gray);
+  line-height:1.85; letter-spacing:.02em; max-width:66ch;
+}
+.case-section p + p{ margin-top:18px; }
+
+/* ── impact grid ───────────────────────────────────────── */
+.impact-grid{
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1px; background:var(--line); border:1px solid var(--line);
+  margin-top:48px;
+}
+.impact-cell{ background:var(--bg); padding:32px 24px; }
+.impact-cell .v{
+  font-size:clamp(32px,4vw,52px); font-weight:800;
+  letter-spacing:-.03em; line-height:1; color:var(--fg);
+}
+.impact-cell .v .u{ font-size:.5em; color:var(--gray); font-weight:400; }
+.impact-cell .l{
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--dim); margin-top:12px; line-height:1.6;
+}
+
+/* ── source cards ──────────────────────────────────────── */
+.src-grid{
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1px; background:var(--line); border:1px solid var(--line); margin-top:48px;
+}
+.src-card{ background:var(--bg); padding:26px 22px; }
+.src-card .sn{
+  font-family:var(--mono); font-size:9px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--dim); margin-bottom:12px;
+}
+.src-card h3{ font-size:13px; font-weight:600; color:var(--fg-soft); margin:0 0 8px; }
+.src-card p{ font-size:11px; color:var(--dim); line-height:1.65; }
+.src-card .src-detail{
+  font-family:var(--mono); font-size:10px; color:var(--gray);
+  margin-top:12px; letter-spacing:.04em;
+}
+
+/* ── flow steps ─────────────────────────────────────────── */
+.flow-grid{
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1px; background:var(--line); border:1px solid var(--line); margin-top:48px;
+}
+.flow-step{ background:var(--bg); padding:28px 24px; }
+.flow-step .n{
+  font-family:var(--mono); font-size:9px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--dim); margin-bottom:14px;
+}
+.flow-step .t{ font-size:13px; font-weight:600; color:var(--fg-soft); margin-bottom:8px; }
+.flow-step .d{ font-size:11px; color:var(--dim); line-height:1.65; font-family:var(--mono); }
+
+/* ── report format block ────────────────────────────────── */
+.report-block{
+  margin-top:40px; border:1px solid var(--line);
+  font-family:var(--mono); font-size:12px; letter-spacing:.03em;
+}
+.report-block .rb-header{
+  background:var(--panel); padding:12px 20px;
+  font-size:10px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--dim); border-bottom:1px solid var(--line);
+}
+.report-block .rb-body{ padding:24px 20px; }
+.report-block .rb-field{ display:flex; gap:14px; margin-bottom:12px; align-items:baseline; }
+.report-block .rb-key{ color:var(--dim); min-width:160px; flex-shrink:0; font-size:11px; }
+.report-block .rb-val{ color:var(--fg-soft); font-size:11px; line-height:1.6; }
+.report-block .rb-field:last-child{ margin-bottom:0; }
+
+/* ── tech stack ─────────────────────────────────────────── */
+.tech-row{
+  display:flex; flex-wrap:wrap; gap:8px; margin-top:32px;
+}
+.tech-tag{
+  font-family:var(--mono); font-size:10px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--gray);
+  border:1px solid var(--line-2); padding:5px 10px;
+}
+
+/* ── next case ──────────────────────────────────────────── */
+.case-next{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:60px clamp(20px,5vw,80px); border-top:1px solid var(--line);
+  text-decoration:none; color:var(--fg); transition:background .3s;
+}
+.case-next:hover{ background:var(--panel); }
+.case-next .next-label{
+  font-family:var(--mono); font-size:10px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--dim); margin-bottom:10px;
+}
+.case-next .next-title{ font-size:clamp(18px,2.5vw,28px); font-weight:700; letter-spacing:-.02em; }
+.case-next .arr{ font-size:28px; color:var(--gray); transition:transform .3s var(--ease); }
+.case-next:hover .arr{ transform:translateX(8px); }
+
+@media (max-width:900px){
+  .impact-grid{ grid-template-columns:1fr 1fr; }
+  .src-grid{ grid-template-columns:1fr 1fr; }
+  .flow-grid{ grid-template-columns:1fr 1fr; }
+  #node-canvas{ width:100% !important; height:auto !important; }
+}
+@media (max-width:600px){
+  .impact-grid{ grid-template-columns:1fr 1fr; }
+  .flow-grid{ grid-template-columns:1fr; }
+  .src-grid{ grid-template-columns:1fr; }
+  .hero-graph{ display:none; }
+}
+</style>
+</head>
+<body class="cur-hidden">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="aura-mark" viewBox="0 0 82 49">
+    <path d="M40.1253 7.26744C40.1253 6.8074 39.5393 6.46154 38.7628 6.46154C37.9864 6.46154 37.4004 6.8074 37.4004 7.26744V32.5152C37.4004 32.8941 37.3856 33.2847 37.3725 33.6636C37.3429 34.4397 37.3134 35.2423 37.402 36.0267L37.3987 40.8356C35.9263 40.7496 34.5802 40.6023 33.3047 40.3888C32.3001 40.22 31.302 40.0115 30.3434 39.7683C29.4996 39.5531 28.6263 39.3314 27.9894 38.9541C26.952 38.3385 26.4628 37.4234 26.6122 36.3808C26.6417 36.169 26.6745 35.9572 26.7057 35.747C26.8617 34.7326 27.0209 33.7182 27.1785 32.7022L27.4625 30.8802C27.886 28.1514 28.3095 25.4209 28.733 22.6921L30.2071 13.1967C30.3664 12.1707 30.5256 11.1464 30.6848 10.1204C30.7094 9.95985 30.7406 9.79933 30.7735 9.63053C30.8375 9.29626 30.9031 8.94875 30.9212 8.59792V8.58799C30.9245 8.57641 30.9278 8.56648 30.9294 8.55655C30.9984 8.11471 30.4895 7.75396 29.7459 7.71755C29.0548 7.6828 28.2898 7.9575 28.2094 8.47712L24.8163 30.3424C24.5438 32.0948 24.2713 33.8473 24.0005 35.5998C23.8232 36.7432 23.7395 37.9562 24.8212 39.1279C25.9851 40.3888 27.9582 40.9531 29.7147 41.3834C31.7732 41.8881 33.9761 42.234 36.2628 42.4144C37.1262 42.4822 37.988 42.5153 38.7169 42.5385C38.7431 42.5385 38.771 42.5385 38.7973 42.5385C39.2996 42.5385 39.7346 42.3813 39.9546 42.1181C40.0679 41.9973 40.1253 41.8633 40.1253 41.716L40.1286 36.0598V10.8121C40.1286 10.4331 40.1434 10.0426 40.1565 9.66363C40.1844 8.88752 40.2156 8.08492 40.127 7.30054V7.2691L40.1253 7.26744Z"/>
+    <path d="M58.0316 31.124L57.7815 29.4681C57.7751 29.4284 57.7703 29.3887 57.7655 29.349C57.727 29.0628 57.6837 28.7386 57.3919 28.4292C57.0344 28.0521 56.4829 27.8056 55.8945 27.6335C57.3711 26.8924 57.2172 25.7559 57.0937 24.8378L57.0793 24.727C56.9254 23.5723 56.7506 22.3382 56.5454 20.9519C56.3193 19.4267 56.0596 17.8783 55.8095 16.3812C55.5049 14.5648 55.1907 12.6872 54.9325 10.8394C54.7161 9.2811 53.6243 8.06852 51.8575 7.42501C50.7961 7.03792 49.568 6.89234 48.4858 6.76496L48.3399 6.74842C47.0317 6.59292 45.6689 6.49697 44.2869 6.46223C43.8107 6.45065 43.3907 6.58465 43.1502 6.82121C43.1422 6.82948 43.1341 6.83609 43.1293 6.84106L43.0941 6.87745C42.9818 6.99821 42.9241 7.13717 42.9241 7.28109V40.3151C42.9241 40.4624 42.9177 40.6096 42.9113 40.7568C42.9001 41.0629 42.8905 41.3805 42.9225 41.6948V41.7312C42.9225 42.0306 43.171 42.2936 43.5879 42.4342C43.7931 42.5037 44.024 42.5385 44.2532 42.5385C44.4825 42.5385 44.7134 42.5037 44.9186 42.4359C45.3354 42.2953 45.5839 42.0339 45.5839 41.7328C45.5839 40.5914 45.5839 39.4483 45.5839 38.3052V30.0752C45.5839 29.6286 45.5839 29.1836 45.5839 28.7369C46.2092 28.7204 46.8457 28.6989 47.479 28.6691C48.1604 28.6575 48.8706 28.6559 49.5889 28.6625C50.6374 28.6724 51.8703 28.7005 53.0567 28.8279L53.1144 28.8345C53.7974 28.9073 54.6488 28.9983 55.0672 29.2415C55.0752 29.2464 55.0816 29.2514 55.0864 29.2547C55.0929 29.2894 55.0977 29.3308 55.1025 29.3738C55.1057 29.4119 55.1105 29.4483 55.1169 29.4846L55.3462 31.0066C55.5225 32.1745 55.6989 33.3407 55.8752 34.5087L56.531 38.8495C56.6095 39.3689 57.3535 39.6435 58.03 39.6104C58.7547 39.574 59.2533 39.2134 59.186 38.7717C58.8012 36.2241 58.4164 33.6766 58.0316 31.129V31.124Z"/>
+    <path d="M25.6069 12.2372C25.749 11.3618 25.8894 10.4847 26.0315 9.60928C26.0626 9.53539 26.0724 9.45828 26.0626 9.37958C26.074 9.0037 25.6395 8.70011 25.0009 8.63746C24.6726 8.59088 24.328 8.61819 24.0226 8.71778C21.7359 9.45507 19.5538 10.4044 17.7131 11.4646C13.4093 13.9431 10.4007 17.2746 9.24599 20.8486C9.03693 21.4959 8.88503 22.1609 8.79356 22.8292C8.74783 22.932 8.73477 23.0364 8.75437 23.1392C8.38687 26.5317 9.56775 29.8953 12.1745 32.8734C12.3934 33.1224 12.7821 33.2766 13.2427 33.2942C13.7196 33.3135 14.1933 33.1802 14.4775 32.9473C14.7731 32.7047 14.8091 32.3995 14.5739 32.1313C12.867 30.1812 11.8021 28.0079 11.4967 25.8474C11.4379 25.4282 11.4036 25.0041 11.3971 24.5784C14.0185 25.5888 17.0679 26.4273 20.493 27.0811L20.3476 27.9854C19.9867 30.223 19.6241 32.4606 19.2631 34.6982C19.188 35.1656 19.139 35.4772 19.0916 35.7888C19.0442 36.0989 18.9969 36.4089 18.9217 36.8747C18.8531 37.302 19.3562 37.6521 20.0945 37.6891C20.1337 37.6907 20.1745 37.6923 20.2137 37.6923C20.8686 37.6923 21.5497 37.4289 21.6281 36.9454L21.6314 36.9181C21.7947 36.1936 21.8552 35.7182 21.9254 35.1688C21.9662 34.8491 22.0087 34.5182 22.0773 34.1006L24.524 18.9499C24.885 16.7124 25.2476 14.4748 25.6085 12.2372H25.6069Z"/>
+    <path d="M64.2862 11.4643C62.4456 10.4041 60.2637 9.45476 57.9773 8.71745C57.6718 8.61947 57.3272 8.59055 56.999 8.63714C56.3588 8.69978 55.9244 9.00338 55.9374 9.37926C55.9276 9.45797 55.9374 9.53507 55.9685 9.60896C56.1105 10.4844 56.251 11.3615 56.3931 12.2369C56.754 14.4745 57.1149 16.7121 57.4775 18.9497L59.924 34.1006C59.9909 34.5182 60.0334 34.8491 60.0759 35.1688C60.1461 35.7181 60.2082 36.1936 60.3698 36.9181L60.3731 36.9454C60.4515 37.4273 61.1325 37.6923 61.7874 37.6923C61.8266 37.6923 61.8674 37.6923 61.9066 37.6891C62.6448 37.6522 63.1479 37.302 63.0793 36.8747C63.0041 36.4105 62.9568 36.1004 62.9094 35.7888C62.862 35.4772 62.813 35.1656 62.7379 34.6981C62.377 32.4605 62.0161 30.2229 61.6535 27.9853L61.5082 27.0809C64.9313 26.4272 67.982 25.5871 70.6032 24.5783C70.5967 25.0024 70.564 25.4264 70.5036 25.8473C70.1982 28.0078 69.1334 30.1811 67.4267 32.1312C67.1916 32.4011 67.2275 32.7063 67.5231 32.9472C67.8073 33.1801 68.2792 33.3135 68.7578 33.2942C69.2183 33.2765 69.6086 33.1223 69.8259 32.8733C72.4308 29.8968 73.6132 26.5316 73.2457 23.139C73.2653 23.0362 73.2522 22.9302 73.2065 22.829C73.115 22.1608 72.9632 21.4958 72.7541 20.8484C71.5978 17.2743 68.5912 13.9428 64.2878 11.4643H64.2862Z"/>
+    <path d="M69.7449 6.98736C62.0473 2.48184 51.8394 0 41 0C30.1606 0 19.9527 2.48184 12.2551 6.98736C4.3512 11.6132 0 17.8328 0 24.5C0 31.1672 4.353 37.3868 12.2551 42.0126C19.9527 46.5182 30.1606 49 41 49C51.8394 49 62.0473 46.5182 69.7449 42.0126C77.6488 37.3868 82 31.1672 82 24.5C82 17.8328 77.647 11.6132 69.7449 6.98736Z"/>
+  </symbol>
+</svg>
+
+<a href="#main-content" class="sr-only" style="position:absolute;left:-9999px;top:0;z-index:9999;padding:8px 14px;background:var(--fg);color:var(--bg);font-family:var(--mono);font-size:11px;">Skip to main content</a>
+<canvas id="bg-canvas"></canvas>
+<div class="scanlines flicker"></div>
+<div class="vignette"></div>
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+<div id="cursor-label"></div>
+<div class="scan-progress" id="progress"></div>
+
+<a class="case-back" id="case-back" aria-label="Back to work" href="../Aura Portfolio.html">
+  <span class="arr">←</span> work
+</a>
+
+<header class="topbar" id="topbar">
+  <a class="brand" href="../Aura Portfolio.html" data-magnetic aria-label="Aura — home">
+    <svg class="brand-mark" viewBox="0 0 82 49" style="color:var(--gray)"><use href="#aura-mark"/></svg>
+  </a>
+  <button class="nav-toggle" id="nav-toggle">[ menu ]</button>
+  <nav class="nav" id="nav">
+    <a href="../Aura Portfolio.html#about" data-scramble><span class="idx">01</span>about</a>
+    <a href="../Aura Portfolio.html#work" data-scramble><span class="idx">02</span>work</a>
+    <a href="../Aura Portfolio.html#certs" data-scramble><span class="idx">03</span>certifications</a>
+    <a href="../Aura Portfolio.html#contact" data-scramble><span class="idx">04</span>contact</a>
+  </nav>
+</header>
+
+<main id="main-content">
+
+  <!-- ── HERO ──────────────────────────────────────── -->
+  <section class="case-hero">
+    <div class="case-tag">PRJ_02 &nbsp;·&nbsp; Cora &nbsp;·&nbsp; 2026</div>
+    <h1 class="reveal">Design<br/>weekly<br/>reporter</h1>
+
+    <div class="hero-graph">
+      <canvas id="node-canvas"></canvas>
+    </div>
+
+    <div class="case-meta-row">
+      <div class="case-meta-item">
+        <span class="label">Role</span>
+        <span class="val">Product Design</span>
+      </div>
+      <div class="case-meta-item">
+        <span class="label">Company</span>
+        <span class="val">Cora</span>
+      </div>
+      <div class="case-meta-item">
+        <span class="label">Year</span>
+        <span class="val">2026</span>
+      </div>
+      <div class="case-meta-item">
+        <span class="label">Type</span>
+        <span class="val">AI · Automation · Design Ops</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="case-body">
+
+    <!-- ── 01 IMPACT ──────────────────────────────── -->
+    <section class="case-section reveal">
+      <div class="cs-label">01 — impact</div>
+      <h2>Monday morning, fully automated</h2>
+      <p>Every Monday at 10:30 AM a structured design report lands in #updates-design — no manual work, no missed initiatives, no inconsistent formats. Four data sources, one agent, zero friction.</p>
+      <div class="impact-grid">
+        <div class="impact-cell">
+          <div class="v">30<span class="u">min</span></div>
+          <div class="l">Manual work<br/>eliminated / week</div>
+        </div>
+        <div class="impact-cell">
+          <div class="v">100<span class="u">%</span></div>
+          <div class="l">Report consistency<br/>achieved</div>
+        </div>
+        <div class="impact-cell">
+          <div class="v">52</div>
+          <div class="l">Reports / year<br/>automated</div>
+        </div>
+        <div class="impact-cell">
+          <div class="v">5</div>
+          <div class="l">Initiatives<br/>tracked in parallel</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 02 OVERVIEW ────────────────────────────── -->
+    <section class="case-section reveal">
+      <div class="cs-label">02 — overview</div>
+      <h2>What is Design Weekly Reporter</h2>
+      <p>Design Weekly Reporter is an AI-powered agent that autonomously aggregates data from four sources — Slack, JIRA, Figma and Google Calendar — processes it through Claude API, and generates a structured design report every week, delivered directly to the team's Slack channel.</p>
+      <p>The agent runs on a cron schedule (Mondays, 10:30 AM) via Vercel Functions. When uncertain about context, it sends a validation DM before posting publicly — keeping the team in control without adding manual work.</p>
+    </section>
+
+    <!-- ── 03 CONTEXT ─────────────────────────────── -->
+    <section class="case-section reveal">
+      <div class="cs-label">03 — context &amp; problem</div>
+      <h2>Status scattered across four tools</h2>
+      <p>The Cora design team was managing 5 concurrent initiatives across Coraliados and partnership products. Progress updates lived in Slack threads, JIRA tickets, Figma version history and meeting notes — never in the same place.</p>
+      <p>Every Monday, synthesising that data into a coherent executive report required 30+ minutes of context-switching and manual aggregation. The result was inconsistent coverage, missed blockers, and leadership often acting on stale information.</p>
+    </section>
+
+    <!-- ── 04 DATA SOURCES ────────────────────────── -->
+    <section class="case-section reveal">
+      <div class="cs-label">04 — data sources</div>
+      <h2>Four inputs, one coherent signal</h2>
+      <p>The agent reads from all four sources concurrently before aggregation begins — ensuring no signal is dropped and cross-source context is preserved.</p>
+      <div class="src-grid">
+        <div class="src-card">
+          <div class="sn">SOURCE_01</div>
+          <h3>Slack</h3>
+          <p>Last 7 days of #updates-design and #coraliados-oneteam. Extracts progress mentions, blocker signals, and decision context from thread replies.</p>
+          <div class="src-detail">7 day window · 2 channels</div>
+        </div>
+        <div class="src-card">
+          <div class="sn">SOURCE_02</div>
+          <h3>JIRA</h3>
+          <p>Five active initiative tickets (SP-3293, SP-3513, SP-3284, SP-3703, SP-3359). Reads status, comments, and recent updates via REST API.</p>
+          <div class="src-detail">5 tickets · status + comments</div>
+        </div>
+        <div class="src-card">
+          <div class="sn">SOURCE_03</div>
+          <h3>Figma</h3>
+          <p>Three design system files. Maps component updates, variant changes, and last-modified timestamps to detect active design work.</p>
+          <div class="src-detail">3 files · version history</div>
+        </div>
+        <div class="src-card">
+          <div class="sn">SOURCE_04</div>
+          <h3>Google Calendar</h3>
+          <p>Meeting titles, descriptions and participants from the past 7 days. Extracts decisions documented in event details and follow-up notes.</p>
+          <div class="src-detail">7 day window · decisions</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 05 PIPELINE ────────────────────────────── -->
+    <section class="case-section reveal">
+      <div class="cs-label">05 — the pipeline</div>
+      <h2>Aggregate → synthesise → deliver</h2>
+      <p>The pipeline runs end-to-end in under 90 seconds. If Claude's confidence falls below threshold on any initiative, a validation DM is sent before the public report posts.</p>
+      <div class="flow-grid">
+        <div class="flow-step">
+          <div class="n">STEP_01</div>
+          <div class="t">Concurrent fetch</div>
+          <div class="d">All four APIs called in parallel. OAuth 2.0 for each. Raw payloads normalised into a unified JSON structure before aggregation.</div>
+        </div>
+        <div class="flow-step">
+          <div class="n">STEP_02</div>
+          <div class="t">Data aggregation</div>
+          <div class="d">Messages, tickets, file diffs and calendar events merged. Keywords extracted, blockers flagged, cross-source connections mapped per initiative.</div>
+        </div>
+        <div class="flow-step">
+          <div class="n">STEP_03</div>
+          <div class="t">Claude synthesis</div>
+          <div class="d">Claude API processes the aggregated context. Generates [DESIGN-UPDATE] format per initiative — advances, blockers, stakeholder impact and business metrics.</div>
+        </div>
+        <div class="flow-step">
+          <div class="n">STEP_04</div>
+          <div class="t">Validate + deliver</div>
+          <div class="d">Optional validation DM if context is uncertain. Final report posted to #updates-design — same format, same time, every Monday.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 06 REPORT FORMAT ───────────────────────── -->
+    <section class="case-section reveal">
+      <div class="cs-label">06 — report format</div>
+      <h2>Executive-ready by default</h2>
+      <p>Each initiative is reported in the same structured format — combining data from all four sources into a context-rich summary that leadership can act on without follow-up questions.</p>
+      <div class="report-block">
+        <div class="rb-header">[ DESIGN-UPDATE ] · template</div>
+        <div class="rb-body">
+          <div class="rb-field">
+            <span class="rb-key">Initiative</span>
+            <span class="rb-val">{name}</span>
+          </div>
+          <div class="rb-field">
+            <span class="rb-key">Objective</span>
+            <span class="rb-val">{brief_synthesis — Claude-generated from cross-source context}</span>
+          </div>
+          <div class="rb-field">
+            <span class="rb-key">Link JIRA</span>
+            <span class="rb-val">{ticket_url}</span>
+          </div>
+          <div class="rb-field">
+            <span class="rb-key">Link Figma</span>
+            <span class="rb-val">{design_file_url}</span>
+          </div>
+          <div class="rb-field">
+            <span class="rb-key">Progress</span>
+            <span class="rb-val">{weekly advances + decisions — from Slack, JIRA, Calendar}</span>
+          </div>
+          <div class="rb-field">
+            <span class="rb-key">Experience impact</span>
+            <span class="rb-val">{user impact + business metrics}</span>
+          </div>
+          <div class="rb-field">
+            <span class="rb-key">Urgent requests</span>
+            <span class="rb-val">{blockers or none}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 07 TECH IMPLEMENTATION ─────────────────── -->
+    <section class="case-section reveal">
+      <div class="cs-label">07 — implementation</div>
+      <h2>Serverless, scheduled, self-correcting</h2>
+      <p>Built as a serverless agent deployable to Vercel. The React dashboard allows manual overrides and trigger runs outside the Monday schedule. The Node.js worker processes all four APIs concurrently, reducing total fetch time to under 30 seconds.</p>
+      <p>Deployment via GitHub → Vercel CI. Cron jobs scheduled through Vercel Functions. Each component is independently restartable — if one API fails, the rest of the report still runs with a flagged gap rather than no report at all.</p>
+      <div class="tech-row">
+        <span class="tech-tag">React</span>
+        <span class="tech-tag">Node.js</span>
+        <span class="tech-tag">Claude API</span>
+        <span class="tech-tag">Slack API</span>
+        <span class="tech-tag">JIRA API</span>
+        <span class="tech-tag">Figma API</span>
+        <span class="tech-tag">Google Calendar</span>
+        <span class="tech-tag">Vercel</span>
+      </div>
+    </section>
+
+  </div>
+
+  <a class="case-next" href="combinaqui.html">
+    <div>
+      <div class="next-label">next case →</div>
+      <div class="next-title">Combinaqui</div>
+    </div>
+    <span class="arr">↗</span>
+  </a>
+
+</main>
+
+<div class="corner bl">PRJ_02 · CORA · 2026</div>
+
+<!-- ── NODE GRAPH — 4 inputs → aggregator → claude → report ── -->
+<script>
+(function () {
+  var canvas = document.getElementById('node-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var DPR = window.devicePixelRatio || 1;
+  var W = 720, H = 380;
+  canvas.width  = W * DPR;
+  canvas.height = H * DPR;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(DPR, DPR);
+
+  var NW = 140, NH = 44;
+
+  // ── Nodes ─────────────────────────────────────────
+  // 4 inputs fan into AGGREGATE → CLAUDE → REPORT
+  var nodes = [
+    { id:'slack',    label:'SLACK',     sub:'SOURCE',  cx:75,  cy:66  , glow:0 },
+    { id:'jira',     label:'JIRA',      sub:'SOURCE',  cx:75,  cy:152 , glow:0 },
+    { id:'figma',    label:'FIGMA',     sub:'SOURCE',  cx:75,  cy:238 , glow:0 },
+    { id:'calendar', label:'CALENDAR',  sub:'SOURCE',  cx:75,  cy:314 , glow:0 },
+    { id:'agg',      label:'AGGREGATE', sub:'PROCESS', cx:300, cy:190 , glow:0 },
+    { id:'claude',   label:'CLAUDE API',sub:'PROCESS', cx:480, cy:190 , glow:0 },
+    { id:'report',   label:'REPORT',    sub:'OUTPUT',  cx:650, cy:190 , glow:0 }
+  ];
+  var nodeMap = {};
+  nodes.forEach(function(n){ nodeMap[n.id] = n; });
+
+  // ports: right = cx+70, left = cx-70
+  var edges = [
+    // 4 sources → AGGREGATE
+    { to:'agg',    pts:[[145,66 ],[185,66 ],[230,190],[230,190]], particles:[], spawnAt:0,   interval:85  },
+    { to:'agg',    pts:[[145,152],[185,152],[230,190],[230,190]], particles:[], spawnAt:22,  interval:85  },
+    { to:'agg',    pts:[[145,238],[185,238],[230,190],[230,190]], particles:[], spawnAt:44,  interval:85  },
+    { to:'agg',    pts:[[145,314],[185,314],[230,190],[230,190]], particles:[], spawnAt:66,  interval:85  },
+    // AGGREGATE → CLAUDE
+    { to:'claude', pts:[[370,190],[405,190],[410,190],[410,190]], particles:[], spawnAt:30,  interval:55  },
+    // CLAUDE → REPORT
+    { to:'report', pts:[[550,190],[585,190],[580,190],[580,190]], particles:[], spawnAt:50,  interval:70  }
+  ];
+
+  function bpt(pts, t) {
+    var p0=pts[0],p1=pts[1],p2=pts[2],p3=pts[3], u=1-t;
+    return [
+      u*u*u*p0[0]+3*u*u*t*p1[0]+3*u*t*t*p2[0]+t*t*t*p3[0],
+      u*u*u*p0[1]+3*u*u*t*p1[1]+3*u*t*t*p2[1]+t*t*t*p3[1]
+    ];
+  }
+
+  function rr(x,y,w,h,r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);
+    ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+
+  var dashOff = 0;
+
+  function draw() {
+    requestAnimationFrame(draw);
+    dashOff -= 0.35;
+
+    edges.forEach(function(e) {
+      e.spawnAt--;
+      if (e.spawnAt <= 0) {
+        e.particles.push({ t:0, speed:0.007+Math.random()*0.003 });
+        e.spawnAt = e.interval + Math.floor(Math.random()*18);
+      }
+      e.particles = e.particles.filter(function(p) {
+        p.t += p.speed;
+        if (p.t >= 0.88) {
+          var nd = nodeMap[e.to];
+          if (nd) nd.glow = Math.min(1, nd.glow + 0.2);
+        }
+        return p.t < 1.06;
+      });
+    });
+
+    nodes.forEach(function(n){ n.glow = Math.max(0, n.glow - 0.018); });
+
+    ctx.clearRect(0,0,W,H);
+
+    // edges
+    edges.forEach(function(e) {
+      var p=e.pts;
+      ctx.save();
+      ctx.setLineDash([4,7]);
+      ctx.lineDashOffset = dashOff;
+      ctx.strokeStyle = '#2c2c36';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(p[0][0],p[0][1]);
+      ctx.bezierCurveTo(p[1][0],p[1][1],p[2][0],p[2][1],p[3][0],p[3][1]);
+      ctx.stroke();
+      ctx.restore();
+
+      [p[0],p[3]].forEach(function(pt){
+        ctx.beginPath();
+        ctx.arc(pt[0],pt[1],3,0,Math.PI*2);
+        ctx.fillStyle='#3a3a46';
+        ctx.fill();
+      });
+
+      e.particles.forEach(function(p2) {
+        var t = Math.min(p2.t,1);
+        var pos = bpt(e.pts, t);
+        var alpha = p2.t<0.08 ? p2.t/0.08 : p2.t>0.92 ? (1-p2.t)/0.08 : 1;
+        ctx.beginPath();
+        ctx.arc(pos[0],pos[1],5.5,0,Math.PI*2);
+        ctx.fillStyle='rgba(200,200,210,'+(alpha*0.12)+')';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(pos[0],pos[1],2.5,0,Math.PI*2);
+        ctx.fillStyle='rgba(210,210,222,'+alpha+')';
+        ctx.fill();
+      });
+    });
+
+    // nodes
+    nodes.forEach(function(n) {
+      var x=n.cx-NW/2, y=n.cy-NH/2, g=n.glow;
+      if (g>0.04) {
+        ctx.save();
+        ctx.shadowColor='rgba(200,200,215,'+(g*0.5)+')';
+        ctx.shadowBlur=20;
+        rr(x,y,NW,NH,4);
+        ctx.strokeStyle='rgba(200,200,215,'+(g*0.8)+')';
+        ctx.lineWidth=1;
+        ctx.stroke();
+        ctx.restore();
+      }
+      rr(x,y,NW,NH,4);
+      ctx.fillStyle='#0d0d14';
+      ctx.fill();
+      ctx.strokeStyle='rgba(160,160,175,'+(0.28+g*0.72)+')';
+      ctx.lineWidth=1;
+      ctx.stroke();
+      ctx.textAlign='center';
+      ctx.font='500 8px monospace';
+      ctx.fillStyle='rgba(90,90,105,'+(0.6+g*0.4)+')';
+      ctx.fillText(n.sub, n.cx, n.cy-7);
+      ctx.font='600 11px monospace';
+      ctx.fillStyle='rgba(170,170,185,'+(0.7+g*0.3)+')';
+      ctx.fillText(n.label, n.cx, n.cy+8);
+    });
+  }
+
+  draw();
+})();
+</script>
+
+<script>
+(function(){
+  var btn = document.getElementById('case-back');
+  if (!btn) return;
+  btn.addEventListener('click', function(e){
+    var saved = sessionStorage.getItem('aura-return-y');
+    if (saved && window.history.length > 1) {
+      e.preventDefault();
+      window.history.back();
+    }
+  });
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous"></script>
+<script src="../js/bg.js"></script>
+<script src="../js/cursor.js"></script>
+<script src="../js/scramble.js"></script>
+<script src="../js/sections-falling.js"></script>
+<script src="../js/main.js"></script>
+
+</body>
+</html>

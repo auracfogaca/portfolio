@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hybrid Payments + Pix — Aura Fogaça</title>
+<meta name="description" content="Unified Pix, TED, TEF and boleto into one AI-driven entry point — 96% SUM, 19% faster, 90% AI automation adoption, capturing Pix 167% growth from 24B to 64B transactions."/>
+<meta name="robots" content="index, follow"/>
+<meta name="author" content="Aura Fogaca"/>
+<meta property="og:type" content="article"/>
+<meta property="og:title" content="Hybrid Payments + Pix — Aura Fogaça"/>
+<meta property="og:description" content="Unified Pix, TED, TEF and boleto into one AI-driven entry point — 96% SUM, 19% faster, 90% AI automation adoption, capturing Pix 167% growth from 24B to 64B transactions."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+<link rel="stylesheet" href="../css/styles.css"/>
+<style>
+.case-back{position:fixed;top:18px;left:clamp(20px,5vw,80px);z-index:200;display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);border:1px solid var(--line-2);padding:9px 14px;border-radius:2px;background:rgba(7,7,10,.75);backdrop-filter:blur(8px);transition:color .25s,border-color .25s;text-decoration:none;}
+.case-back:hover{color:var(--fg);border-color:var(--phosphor);}
+.case-back .arr{display:inline-block;transition:transform .25s var(--ease);}
+.case-back:hover .arr{transform:translateX(-4px);}
+.case-hero{min-height:100vh;display:flex;flex-direction:column;padding:120px clamp(20px,5vw,80px) 0;position:relative;border-bottom:1px solid var(--line);overflow:hidden;}
+.case-tag{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:24px;display:flex;align-items:center;gap:16px;}
+.case-tag::before{content:'';width:30px;height:1px;background:var(--line-2);}
+.case-hero h1{font-size:clamp(36px,6.5vw,100px);font-weight:800;letter-spacing:-.03em;line-height:.92;color:var(--fg);margin:0;max-width:14ch;}
+.hero-graph{flex:1;min-height:280px;display:flex;align-items:center;justify-content:center;padding:40px 0 0;}
+#pix-canvas{max-width:100%;}
+.case-meta-row{display:flex;gap:clamp(30px,6vw,80px);flex-wrap:wrap;border-top:1px solid var(--line);padding:32px 0 40px;margin-top:auto;}
+.case-meta-item{display:flex;flex-direction:column;gap:8px;}
+.case-meta-item .label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);}
+.case-meta-item .val{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--fg-soft);}
+.case-body{max-width:960px;margin:0 auto;padding:0 clamp(20px,5vw,80px) 160px;}
+.case-section{padding:80px 0;border-bottom:1px solid var(--line);}
+.case-section:last-child{border-bottom:none;}
+.cs-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:32px;display:flex;align-items:center;gap:14px;}
+.cs-label::before{content:'';width:24px;height:1px;background:var(--line-2);}
+.case-section h2{font-size:clamp(22px,3.2vw,40px);font-weight:700;letter-spacing:-.02em;line-height:1.1;color:var(--fg);margin:0 0 24px;}
+.case-section p{font-size:clamp(14px,1.4vw,16px);color:var(--gray);line-height:1.85;letter-spacing:.02em;max-width:66ch;}
+.case-section p+p{margin-top:18px;}
+.impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px;}
+.impact-cell{background:var(--bg);padding:32px 24px;}
+.impact-cell .v{font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-.03em;line-height:1;color:var(--fg);}
+.impact-cell .v .u{font-size:.5em;color:var(--gray);font-weight:400;}
+.impact-cell .l{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:12px;line-height:1.6;}
+.insight-block{border-left:1px solid var(--line-2);padding:20px 24px;margin-top:32px;max-width:66ch;}
+.insight-block .ib-label{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;}
+.insight-block p{font-size:14px;color:var(--fg-soft);line-height:1.75;margin:0;}
+.approach-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px;}
+.appr-cell{background:var(--bg);padding:28px 24px;}
+.appr-cell .an{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;}
+.appr-cell h3{font-size:13px;font-weight:600;color:var(--fg-soft);margin:0 0 10px;}
+.appr-cell p{font-size:12px;color:var(--dim);line-height:1.65;}
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px;}
+.ba-cell{background:var(--bg);padding:28px 24px;}
+.ba-cell .ph{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;}
+.ba-cell h3{font-size:13px;font-weight:600;color:var(--fg-soft);margin:0 0 10px;}
+.ba-cell p{font-size:12px;color:var(--dim);line-height:1.65;}
+.market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px;}
+.mkt-cell{background:var(--bg);padding:28px 24px;}
+.mkt-cell .mn{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;}
+.mkt-cell .mv{font-size:clamp(22px,3vw,36px);font-weight:800;letter-spacing:-.02em;color:var(--fg);line-height:1;}
+.mkt-cell .ml{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:8px;line-height:1.5;}
+.mkt-cell p{font-size:11px;color:var(--dim);line-height:1.6;margin-top:10px;}
+.roadmap-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px;}
+.rm-item{display:flex;gap:0;background:var(--bg);}
+.rm-yr{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);padding:22px 20px;min-width:130px;border-right:1px solid var(--line);flex-shrink:0;}
+.rm-body{padding:22px 24px;flex:1;}
+.rm-body h3{font-size:13px;font-weight:600;color:var(--fg-soft);margin:0 0 8px;}
+.rm-body p{font-size:12px;color:var(--dim);line-height:1.65;margin:0;}
+/* video sections */
+.video-concept{display:flex;justify-content:center;padding:40px 0;}
+.video-concept video{width:360px;height:760px;object-fit:contain;background:#000;display:block;}
+.video-pair{display:flex;justify-content:center;gap:24px;padding:40px 0;flex-wrap:wrap;}
+.video-pair video{width:300px;height:640px;object-fit:contain;background:#000;display:block;}
+.case-next{display:flex;align-items:center;justify-content:space-between;padding:60px clamp(20px,5vw,80px);border-top:1px solid var(--line);text-decoration:none;color:var(--fg);transition:background .3s;}
+.case-next:hover{background:var(--panel);}
+.case-next .next-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;}
+.case-next .next-title{font-size:clamp(18px,2.5vw,28px);font-weight:700;letter-spacing:-.02em;}
+.case-next .arr{font-size:28px;color:var(--gray);transition:transform .3s var(--ease);}
+.case-next:hover .arr{transform:translateX(8px);}
+@media(max-width:900px){.impact-grid{grid-template-columns:1fr 1fr;}.approach-grid{grid-template-columns:1fr;}.before-after{grid-template-columns:1fr;}.market-grid{grid-template-columns:1fr;}.video-pair{flex-direction:column;align-items:center;}.rm-item{flex-direction:column;}.rm-yr{border-right:none;border-bottom:1px solid var(--line);min-width:auto;}}
+@media(max-width:600px){.hero-graph{display:none;}.video-concept video,.video-pair video{width:90%;height:auto;}}
+</style>
+</head>
+<body class="cur-hidden">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="aura-mark" viewBox="0 0 82 49">
+    <path d="M40.1253 7.26744C40.1253 6.8074 39.5393 6.46154 38.7628 6.46154C37.9864 6.46154 37.4004 6.8074 37.4004 7.26744V32.5152C37.4004 32.8941 37.3856 33.2847 37.3725 33.6636C37.3429 34.4397 37.3134 35.2423 37.402 36.0267L37.3987 40.8356C35.9263 40.7496 34.5802 40.6023 33.3047 40.3888C32.3001 40.22 31.302 40.0115 30.3434 39.7683C29.4996 39.5531 28.6263 39.3314 27.9894 38.9541C26.952 38.3385 26.4628 37.4234 26.6122 36.3808C26.6417 36.169 26.6745 35.9572 26.7057 35.747C26.8617 34.7326 27.0209 33.7182 27.1785 32.7022L27.4625 30.8802C27.886 28.1514 28.3095 25.4209 28.733 22.6921L30.2071 13.1967C30.3664 12.1707 30.5256 11.1464 30.6848 10.1204C30.7094 9.95985 30.7406 9.79933 30.7735 9.63053C30.8375 9.29626 30.9031 8.94875 30.9212 8.59792V8.58799C30.9245 8.57641 30.9278 8.56648 30.9294 8.55655C30.9984 8.11471 30.4895 7.75396 29.7459 7.71755C29.0548 7.6828 28.2898 7.9575 28.2094 8.47712L24.8163 30.3424C24.5438 32.0948 24.2713 33.8473 24.0005 35.5998C23.8232 36.7432 23.7395 37.9562 24.8212 39.1279C25.9851 40.3888 27.9582 40.9531 29.7147 41.3834C31.7732 41.8881 33.9761 42.234 36.2628 42.4144C37.1262 42.4822 37.988 42.5153 38.7169 42.5385C38.7431 42.5385 38.771 42.5385 38.7973 42.5385C39.2996 42.5385 39.7346 42.3813 39.9546 42.1181C40.0679 41.9973 40.1253 41.8633 40.1253 41.716L40.1286 36.0598V10.8121C40.1286 10.4331 40.1434 10.0426 40.1565 9.66363C40.1844 8.88752 40.2156 8.08492 40.127 7.30054V7.2691L40.1253 7.26744Z"/>
+    <path d="M58.0316 31.124L57.7815 29.4681C57.7751 29.4284 57.7703 29.3887 57.7655 29.349C57.727 29.0628 57.6837 28.7386 57.3919 28.4292C57.0344 28.0521 56.4829 27.8056 55.8945 27.6335C57.3711 26.8924 57.2172 25.7559 57.0937 24.8378L57.0793 24.727C56.9254 23.5723 56.7506 22.3382 56.5454 20.9519C56.3193 19.4267 56.0596 17.8783 55.8095 16.3812C55.5049 14.5648 55.1907 12.6872 54.9325 10.8394C54.7161 9.2811 53.6243 8.06852 51.8575 7.42501C50.7961 7.03792 49.568 6.89234 48.4858 6.76496L48.3399 6.74842C47.0317 6.59292 45.6689 6.49697 44.2869 6.46223C43.8107 6.45065 43.3907 6.58465 43.1502 6.82121C43.1422 6.82948 43.1341 6.83609 43.1293 6.84106L43.0941 6.87745C42.9818 6.99821 42.9241 7.13717 42.9241 7.28109V40.3151C42.9241 40.4624 42.9177 40.6096 42.9113 40.7568C42.9001 41.0629 42.8905 41.3805 42.9225 41.6948V41.7312C42.9225 42.0306 43.171 42.2936 43.5879 42.4342C43.7931 42.5037 44.024 42.5385 44.2532 42.5385C44.4825 42.5385 44.7134 42.5037 44.9186 42.4359C45.3354 42.2953 45.5839 42.0339 45.5839 41.7328C45.5839 40.5914 45.5839 39.4483 45.5839 38.3052V30.0752C45.5839 29.6286 45.5839 29.1836 45.5839 28.7369C46.2092 28.7204 46.8457 28.6989 47.479 28.6691C48.1604 28.6575 48.8706 28.6559 49.5889 28.6625C50.6374 28.6724 51.8703 28.7005 53.0567 28.8279L53.1144 28.8345C53.7974 28.9073 54.6488 28.9983 55.0672 29.2415C55.0752 29.2464 55.0816 29.2514 55.0864 29.2547C55.0929 29.2894 55.0977 29.3308 55.1025 29.3738C55.1057 29.4119 55.1105 29.4483 55.1169 29.4846L55.3462 31.0066C55.5225 32.1745 55.6989 33.3407 55.8752 34.5087L56.531 38.8495C56.6095 39.3689 57.3535 39.6435 58.03 39.6104C58.7547 39.574 59.2533 39.2134 59.186 38.7717C58.8012 36.2241 58.4164 33.6766 58.0316 31.129V31.124Z"/>
+    <path d="M25.6069 12.2372C25.749 11.3618 25.8894 10.4847 26.0315 9.60928C26.0626 9.53539 26.0724 9.45828 26.0626 9.37958C26.074 9.0037 25.6395 8.70011 25.0009 8.63746C24.6726 8.59088 24.328 8.61819 24.0226 8.71778C21.7359 9.45507 19.5538 10.4044 17.7131 11.4646C13.4093 13.9431 10.4007 17.2746 9.24599 20.8486C9.03693 21.4959 8.88503 22.1609 8.79356 22.8292C8.74783 22.932 8.73477 23.0364 8.75437 23.1392C8.38687 26.5317 9.56775 29.8953 12.1745 32.8734C12.3934 33.1224 12.7821 33.2766 13.2427 33.2942C13.7196 33.3135 14.1933 33.1802 14.4775 32.9473C14.7731 32.7047 14.8091 32.3995 14.5739 32.1313C12.867 30.1812 11.8021 28.0079 11.4967 25.8474C11.4379 25.4282 11.4036 25.0041 11.3971 24.5784C14.0185 25.5888 17.0679 26.4273 20.493 27.0811L20.3476 27.9854C19.9867 30.223 19.6241 32.4606 19.2631 34.6982C19.188 35.1656 19.139 35.4772 19.0916 35.7888C19.0442 36.0989 18.9969 36.4089 18.9217 36.8747C18.8531 37.302 19.3562 37.6521 20.0945 37.6891C20.1337 37.6907 20.1745 37.6923 20.2137 37.6923C20.8686 37.6923 21.5497 37.4289 21.6281 36.9454L21.6314 36.9181C21.7947 36.1936 21.8552 35.7182 21.9254 35.1688C21.9662 34.8491 22.0087 34.5182 22.0773 34.1006L24.524 18.9499C24.885 16.7124 25.2476 14.4748 25.6085 12.2372H25.6069Z"/>
+    <path d="M64.2862 11.4643C62.4456 10.4041 60.2637 9.45476 57.9773 8.71745C57.6718 8.61947 57.3272 8.59055 56.999 8.63714C56.3588 8.69978 55.9244 9.00338 55.9374 9.37926C55.9276 9.45797 55.9374 9.53507 55.9685 9.60896C56.1105 10.4844 56.251 11.3615 56.3931 12.2369C56.754 14.4745 57.1149 16.7121 57.4775 18.9497L59.924 34.1006C59.9909 34.5182 60.0334 34.8491 60.0759 35.1688C60.1461 35.7181 60.2082 36.1936 60.3698 36.9181L60.3731 36.9454C60.4515 37.4273 61.1325 37.6923 61.7874 37.6923C61.8266 37.6923 61.8674 37.6923 61.9066 37.6891C62.6448 37.6522 63.1479 37.302 63.0793 36.8747C63.0041 36.4105 62.9568 36.1004 62.9094 35.7888C62.862 35.4772 62.813 35.1656 62.7379 34.6981C62.377 32.4605 62.0161 30.2229 61.6535 27.9853L61.5082 27.0809C64.9313 26.4272 67.982 25.5871 70.6032 24.5783C70.5967 25.0024 70.564 25.4264 70.5036 25.8473C70.1982 28.0078 69.1334 30.1811 67.4267 32.1312C67.1916 32.4011 67.2275 32.7063 67.5231 32.9472C67.8073 33.1801 68.2792 33.3135 68.7578 33.2942C69.2183 33.2765 69.6086 33.1223 69.8259 32.8733C72.4308 29.8968 73.6132 26.5316 73.2457 23.139C73.2653 23.0362 73.2522 22.9302 73.2065 22.829C73.115 22.1608 72.9632 21.4958 72.7541 20.8484C71.5978 17.2743 68.5912 13.9428 64.2878 11.4643H64.2862Z"/>
+    <path d="M69.7449 6.98736C62.0473 2.48184 51.8394 0 41 0C30.1606 0 19.9527 2.48184 12.2551 6.98736C4.3512 11.6132 0 17.8328 0 24.5C0 31.1672 4.353 37.3868 12.2551 42.0126C19.9527 46.5182 30.1606 49 41 49C51.8394 49 62.0473 46.5182 69.7449 42.0126C77.6488 37.3868 82 31.1672 82 24.5C82 17.8328 77.647 11.6132 69.7449 6.98736Z"/>
+  </symbol>
+</svg>
+<a href="#main-content" class="sr-only" style="position:absolute;left:-9999px;top:0;z-index:9999;padding:8px 14px;background:var(--fg);color:var(--bg);font-family:var(--mono);font-size:11px;">Skip to main content</a>
+<canvas id="bg-canvas"></canvas>
+<div class="scanlines flicker"></div>
+<div class="vignette"></div>
+<div id="cursor"></div><div id="cursor-dot"></div><div id="cursor-label"></div>
+<div class="scan-progress" id="progress"></div>
+<a class="case-back" id="case-back" aria-label="Back to work" href="../Aura Portfolio.html"><span class="arr">←</span> work</a>
+<header class="topbar" id="topbar">
+  <a class="brand" href="../Aura Portfolio.html" data-magnetic aria-label="Aura — home">
+    <svg class="brand-mark" viewBox="0 0 82 49" style="color:var(--gray)"><use href="#aura-mark"/></svg>
+  </a>
+  <button class="nav-toggle" id="nav-toggle">[ menu ]</button>
+  <nav class="nav" id="nav">
+    <a href="../Aura Portfolio.html#about" data-scramble><span class="idx">01</span>about</a>
+    <a href="../Aura Portfolio.html#work" data-scramble><span class="idx">02</span>work</a>
+    <a href="../Aura Portfolio.html#certs" data-scramble><span class="idx">03</span>certifications</a>
+    <a href="../Aura Portfolio.html#contact" data-scramble><span class="idx">04</span>contact</a>
+  </nav>
+</header>
+<main id="main-content">
+  <section class="case-hero">
+    <div class="case-tag">PRJ_05 &nbsp;·&nbsp; Itaú &nbsp;·&nbsp; 2023</div>
+    <h1 class="reveal">Hybrid<br/>payments<br/>+ Pix</h1>
+    <div class="hero-graph"><canvas id="pix-canvas"></canvas></div>
+    <div class="case-meta-row">
+      <div class="case-meta-item"><span class="label">Role</span><span class="val">Product Design</span></div>
+      <div class="case-meta-item"><span class="label">Company</span><span class="val">Itaú</span></div>
+      <div class="case-meta-item"><span class="label">Year</span><span class="val">2022–2024</span></div>
+      <div class="case-meta-item"><span class="label">Type</span><span class="val">Payments · AI · Infrastructure</span></div>
+    </div>
+  </section>
+
+  <div class="case-body">
+
+    <!-- 01 IMPACT -->
+    <section class="case-section reveal">
+      <div class="cs-label">01 — impact</div>
+      <h2>Payment became infrastructure, not interface.</h2>
+      <p>A 2-year redesign across all payment rails — Pix, TED, TEF, boleto, direct debit — unified into a single intelligent entry point. Every metric moved in the right direction.</p>
+      <div class="impact-grid">
+        <div class="impact-cell"><div class="v">96<span class="u">%</span></div><div class="l">System Usability<br/>(SUM) score</div></div>
+        <div class="impact-cell"><div class="v">19<span class="u">%</span></div><div class="l">Faster payment<br/>journeys</div></div>
+        <div class="impact-cell"><div class="v">90<span class="u">%</span></div><div class="l">AI automation<br/>adoption rate</div></div>
+        <div class="impact-cell"><div class="v">82<span class="u">%</span></div><div class="l">M/M retention<br/>automated users</div></div>
+      </div>
+      <div class="insight-block" style="margin-top:40px;">
+        <div class="ib-label">Market context</div>
+        <p>Pix grew from 24B transactions in 2022 to 64B in 2024 — +167%. On December 20, 2024, Pix set a single-day record of 252.1M transactions. Our hybrid journey positioned Itaú to capture every one of them.</p>
+      </div>
+    </section>
+
+    <!-- 02 THE PROBLEM -->
+    <section class="case-section reveal">
+      <div class="cs-label">02 — the problem</div>
+      <h2>Customers don't think in payment methods.</h2>
+      <p>A customer wants to pay their electricity bill. They open the app and face a question: Pix? TED? TEF? Find the utility's website directly? Each path requires different steps, different confirmations, different anxiety about whether the money reached the right place.</p>
+      <p>Customers think in jobs: <em>"Pay my electricity bill safely"</em> or <em>"Send money to my mother quickly."</em> Yet the app forced them to navigate a taxonomy of legacy payment rails — each with its own flow.</p>
+      <div class="insight-block">
+        <div class="ib-label">Job-to-Be-Done</div>
+        <p>When I need to pay a utility bill or send money, I want to do it quickly, safely, and without worrying about which method to use. I want to stay organised and confident that my financial obligations are up to date.</p>
+      </div>
+    </section>
+
+    <!-- 03 APPROACH -->
+    <section class="case-section reveal">
+      <div class="cs-label">03 — approach</div>
+      <h2>Four design decisions that unified the experience</h2>
+      <div class="approach-grid">
+        <div class="appr-cell">
+          <div class="an">DECISION_01</div>
+          <h3>Unified entry point</h3>
+          <p>Eliminated the choice architecture. Instead of "which payment method?" — one input: who are you paying, how much, when. The app determines the optimal rail (Pix P2P, TED B2B, auto-billing for utilities). No decision required.</p>
+        </div>
+        <div class="appr-cell">
+          <div class="an">DECISION_02</div>
+          <h3>Multimodal intelligence</h3>
+          <p>Three input modes: camera (scan a bill, extract amount + recipient), voice ("pay my electricity bill"), text (natural language). A customer could say "pay my electricity" and the app finds the account and prepares payment.</p>
+        </div>
+        <div class="appr-cell">
+          <div class="an">DECISION_03</div>
+          <h3>AI-driven automation</h3>
+          <p>ML detected patterns — rent paid every 1st, shared meals every Friday. The system anticipated payments, not just executed them. 90% of users trusted AI enough to automate at least one recurring payment.</p>
+        </div>
+        <div class="appr-cell">
+          <div class="an">DECISION_04</div>
+          <h3>Safety-first design</h3>
+          <p>More automation = more risk. We implemented fraud detection (flagging unusual amounts/recipients), payment verification for new payees, and automated refund via Central Bank's Pix reversal mechanism (90-day window).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 CONCEPT — ascii mockup video -->
+    <section class="case-section reveal" style="padding-bottom:16px;">
+      <div class="cs-label">04 — concept</div>
+      <h2>The unified payment experience</h2>
+      <p>Single entry point — the app selects the right payment rail, suggests automation, detects recurring bills.</p>
+    </section>
+    <section class="case-section" style="padding:0;border-bottom:1px solid var(--line);">
+      <div class="video-concept">
+        <video id="v-concept" muted playsinline preload="metadata" loop>
+          <source src="../uploads/video_ascii (2).mp4" type="video/mp4"/>
+        </video>
+      </div>
+    </section>
+
+    <!-- 05 EXPERIENCE FLOW — two screen recordings -->
+    <section class="case-section reveal" style="padding-bottom:16px;">
+      <div class="cs-label">05 — experience recordings</div>
+      <h2>The flow in action</h2>
+      <p>Two recorded flows — Pix transfer and utility bill payment — showing the unified interface, method suggestion, and confirmation screens.</p>
+    </section>
+    <section class="case-section" style="padding:0;border-bottom:1px solid var(--line);">
+      <div class="video-pair">
+        <video id="v-flow1" muted playsinline preload="metadata" loop>
+          <source src="../uploads/Screen-Recording-2025-10-07-at-12.38.10 (1).mp4" type="video/mp4"/>
+        </video>
+        <video id="v-flow2" muted playsinline preload="metadata" loop>
+          <source src="../uploads/Screen-Recording-2025-10-07-at-12.55.03 (1).mp4" type="video/mp4"/>
+        </video>
+      </div>
+    </section>
+
+    <!-- 06 BEFORE / AFTER -->
+    <section class="case-section reveal">
+      <div class="cs-label">06 — before → after</div>
+      <h2>What changed in the experience</h2>
+      <div class="before-after">
+        <div class="ba-cell">
+          <div class="ph">BEFORE</div>
+          <h3>Fragmented payment landscape</h3>
+          <p>Separate flows for Pix, TED, TEF, utility billing, subscriptions. Each method had different confirmations. No automation, no intelligence. Every payment was a manual decision.</p>
+        </div>
+        <div class="ba-cell">
+          <div class="ph">AFTER</div>
+          <h3>Unified intelligent journey</h3>
+          <p>Single payment entry. AI suggests payment method automatically. Camera, voice, and text inputs. Recurring payments detected and offered for automation. Split bills (Cofrinho/Pay Together) enabled. 55% adoption of shared payments.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 MARKET POSITION -->
+    <section class="case-section reveal">
+      <div class="cs-label">07 — market shift</div>
+      <h2>The timing aligned perfectly</h2>
+      <p>Pix wasn't just growing — it was replacing. By 2024, P2B payments grew 94% YoY. B2B Pix exceeded R$1 trillion in December 2024. Our redesign captured this momentum at the exact moment the market was ready.</p>
+      <div class="market-grid">
+        <div class="mkt-cell">
+          <div class="mn">P2B SEGMENT</div>
+          <div class="mv">+94<span style="font-size:.5em;color:var(--gray);font-weight:400">%</span></div>
+          <div class="ml">P2B growth 2024 vs. 2023</div>
+          <p>Fastest-growing use case. Customers paying merchants directly via Pix through QR codes — our unified entry point captured every one.</p>
+        </div>
+        <div class="mkt-cell">
+          <div class="mn">B2B SEGMENT</div>
+          <div class="mv">R$1<span style="font-size:.5em;color:var(--gray);font-weight:400">T</span></div>
+          <div class="ml">B2B Pix volume Dec 2024</div>
+          <p>+56% YoY. Enterprise acceleration that our B2B payment automation flows were built to serve.</p>
+        </div>
+        <div class="mkt-cell">
+          <div class="mn">LIFT CHALLENGE</div>
+          <div class="mv">4×</div>
+          <div class="ml">Central Bank program entries</div>
+          <p>Selected 2022, 2023, 2024, 2025 — one of nine projects competing in the Central Bank's innovation program across Pix, CBDC, and blockchain.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 ROADMAP -->
+    <section class="case-section reveal">
+      <div class="cs-label">08 — what comes next</div>
+      <h2>Building the future of payments</h2>
+      <div class="roadmap-list">
+        <div class="rm-item">
+          <div class="rm-yr">Jun 2025</div>
+          <div class="rm-body"><h3>Pix Automatic</h3><p>Central Bank approved Pix recurring payments. Businesses collect recurring bills (utilities, subscriptions) over the Pix rail — across different banks. Our journey auto-detects recurring bills and offers automation.</p></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-yr">Feb 2025</div>
+          <div class="rm-body"><h3>Pix NFC (Contactless)</h3><p>Tap-to-pay via NFC — Pix goes in-person retail. Competitive with Apple Pay and Visa Contactless, but lower merchant fees. Our 30M+ active digital users were ready for this.</p></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-yr">2025</div>
+          <div class="rm-body"><h3>BNPL + Pix Integration</h3><p>Buy-now-pay-later via Pix. Customers split purchases into 2–12 Pix installments instead of credit card. Lower friction for customers, lower cost for merchants.</p></div>
+        </div>
+        <div class="rm-item">
+          <div class="rm-yr">2025–2026</div>
+          <div class="rm-body"><h3>Predictive automation + International expansion</h3><p>ML proactively suggests payment schedules from spending patterns. Leveraging Itaú's regional presence for cross-border Pix in Colombia (Q4 2025) and Mexico (2026).</p></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <a class="case-next" href="hermes-pardini.html">
+    <div>
+      <div class="next-label">next case →</div>
+      <div class="next-title">Hermes Pardini app</div>
+    </div>
+    <span class="arr">↗</span>
+  </a>
+</main>
+<div class="corner bl">PRJ_05 · ITAÚ · 2023</div>
+
+<!-- ── Pix logo + money transfer animation ───────────── -->
+<script>
+(function(){
+  var c = document.getElementById('pix-canvas');
+  if(!c) return;
+  var ctx = c.getContext('2d');
+  var DPR = window.devicePixelRatio||1;
+  var W=700, H=320;
+  c.width=W*DPR; c.height=H*DPR;
+  c.style.width=W+'px'; c.style.height=H+'px';
+  ctx.scale(DPR,DPR);
+
+  var cx=W/2, cy=H/2;
+  var PR=48; // pix logo radius
+
+  // outer nodes: label, angle, radius from center
+  var nodes=[
+    {label:'PIX',   angle:-Math.PI/2, r:0,   size:PR}, // center (fake node for particle target)
+    {label:'P2P',   angle:-Math.PI/2, r:130, size:18},
+    {label:'P2B',   angle:-Math.PI/6, r:130, size:18},
+    {label:'B2B',   angle: Math.PI/6, r:130, size:18},
+    {label:'TED',   angle: Math.PI/2, r:130, size:18},
+    {label:'BOLETO',angle: Math.PI*5/6,r:130,size:18},
+    {label:'AUTO',  angle:-Math.PI*5/6,r:130,size:18},
+  ];
+
+  // edges: from outer node index to center (0)
+  var edges=[];
+  for(var i=1;i<nodes.length;i++){
+    edges.push({from:i, to:0, particles:[], spawnAt:Math.floor(Math.random()*60), interval:55+i*8});
+  }
+
+  function nodePos(n){
+    if(n.r===0) return {x:cx,y:cy};
+    return {x:cx+Math.cos(n.angle)*n.r, y:cy+Math.sin(n.angle)*n.r};
+  }
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+
+  // Draw Pix diamond logo (4 curved petals)
+  function drawPixLogo(x,y,r,glow){
+    ctx.save();
+    ctx.translate(x,y);
+    if(glow>0.05){
+      ctx.shadowColor='rgba(210,210,222,'+(glow*0.6)+')';
+      ctx.shadowBlur=28;
+    }
+    // 4 petal shapes rotated 0, 90, 180, 270
+    var petalAngles=[Math.PI/4, -Math.PI/4, Math.PI*3/4, -Math.PI*3/4];
+    petalAngles.forEach(function(a){
+      ctx.save();
+      ctx.rotate(a);
+      ctx.beginPath();
+      // petal: two quadratic curves forming a leaf shape along the +Y axis
+      ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(r*0.7,r*0.4, 0,r);
+      ctx.quadraticCurveTo(-r*0.7,r*0.4, 0,0);
+      ctx.fillStyle='rgba(170,170,182,'+(0.55+glow*0.45)+')';
+      ctx.fill();
+      ctx.restore();
+    });
+    // center dot
+    ctx.beginPath();
+    ctx.arc(0,0,r*0.12,0,Math.PI*2);
+    ctx.fillStyle='rgba(100,100,115,0.6)';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // outer node circle
+  function drawNode(n){
+    var p=nodePos(n);
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,n.size,0,Math.PI*2);
+    ctx.fillStyle='#0d0d15';
+    ctx.fill();
+    ctx.strokeStyle='rgba(140,140,155,0.4)';
+    ctx.lineWidth=1;
+    ctx.stroke();
+    ctx.textAlign='center';
+    ctx.font='500 9px monospace';
+    ctx.fillStyle='rgba(130,130,145,0.8)';
+    ctx.fillText(n.label,p.x,p.y+3.5);
+  }
+
+  var dashOff=0, pixGlow=0, ft=0;
+
+  function draw(){
+    requestAnimationFrame(draw);
+    ft+=0.02;
+    dashOff-=0.4;
+    pixGlow=0.35+0.25*Math.sin(ft*1.8);
+
+    // spawn + move particles
+    edges.forEach(function(e){
+      e.spawnAt--;
+      if(e.spawnAt<=0){
+        e.particles.push({t:0,speed:0.008+Math.random()*0.004});
+        e.spawnAt=e.interval+Math.floor(Math.random()*20);
+      }
+      e.particles=e.particles.filter(function(p){
+        p.t+=p.speed;
+        if(p.t>=0.85) pixGlow=Math.min(1,pixGlow+0.06);
+        return p.t<1.05;
+      });
+    });
+
+    ctx.clearRect(0,0,W,H);
+
+    // draw dashed edges
+    edges.forEach(function(e){
+      var fp=nodePos(nodes[e.from]);
+      var tp=nodePos(nodes[e.to]);
+      ctx.save();
+      ctx.setLineDash([4,8]);
+      ctx.lineDashOffset=dashOff;
+      ctx.strokeStyle='rgba(60,60,72,0.7)';
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.moveTo(fp.x,fp.y);
+      ctx.lineTo(tp.x,tp.y);
+      ctx.stroke();
+      ctx.restore();
+
+      // particles along edge
+      e.particles.forEach(function(p){
+        var t=Math.min(p.t,1);
+        var px2=lerp(fp.x,tp.x,t);
+        var py2=lerp(fp.y,tp.y,t);
+        var alpha=p.t<0.08?p.t/0.08:p.t>0.9?(1-p.t)/0.1:1;
+        ctx.beginPath();
+        ctx.arc(px2,py2,4,0,Math.PI*2);
+        ctx.fillStyle='rgba(180,180,195,'+(alpha*0.15)+')';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(px2,py2,2,0,Math.PI*2);
+        ctx.fillStyle='rgba(200,200,215,'+alpha+')';
+        ctx.fill();
+      });
+    });
+
+    // outer nodes (skip index 0 = center)
+    for(var i=1;i<nodes.length;i++) drawNode(nodes[i]);
+
+    // pix logo at center
+    drawPixLogo(cx,cy,PR,pixGlow);
+  }
+
+  draw();
+})();
+</script>
+
+<!-- scroll-triggered video play -->
+<script>
+(function(){
+  ['v-concept','v-flow1','v-flow2'].forEach(function(id){
+    var v=document.getElementById(id);
+    if(!v)return;
+    new IntersectionObserver(function(entries){
+      entries.forEach(function(e){if(e.isIntersecting){v.play();}else{v.pause();}});
+    },{threshold:0.3}).observe(v);
+  });
+})();
+</script>
+
+<script>
+(function(){
+  var btn=document.getElementById('case-back');
+  if(!btn)return;
+  btn.addEventListener('click',function(e){
+    var s=sessionStorage.getItem('aura-return-y');
+    if(s&&window.history.length>1){e.preventDefault();window.history.back();}
+  });
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous"></script>
+<script src="../js/bg.js"></script>
+<script src="../js/cursor.js"></script>
+<script src="../js/scramble.js"></script>
+<script src="../js/sections-falling.js"></script>
+<script src="../js/main.js"></script>
+</body>
+</html>

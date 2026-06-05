@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Combinaqui — Aura Fogaça</title>
+<meta name="description" content="Redesigned Itaú subscription ecosystem from fragmented product grid to personalised combo builder — CES 4.3/5, 86% SUM, 1.5M Globoplay subscribers, R$250M advertising impact."/>
+<meta name="robots" content="index, follow"/>
+<meta name="author" content="Aura Fogaca"/>
+<meta property="og:type" content="article"/>
+<meta property="og:title" content="Combinaqui — Aura Fogaça"/>
+<meta property="og:description" content="Redesigned Itaú subscription ecosystem from fragmented product grid to personalised combo builder — CES 4.3/5, 86% SUM, 1.5M Globoplay subscribers, R$250M advertising impact."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+<link rel="stylesheet" href="../css/styles.css"/>
+<style>
+.case-back{position:fixed;top:18px;left:clamp(20px,5vw,80px);z-index:200;display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);border:1px solid var(--line-2);padding:9px 14px;border-radius:2px;background:rgba(7,7,10,.75);backdrop-filter:blur(8px);transition:color .25s,border-color .25s;text-decoration:none;}
+.case-back:hover{color:var(--fg);border-color:var(--phosphor);}
+.case-back .arr{display:inline-block;transition:transform .25s var(--ease);}
+.case-back:hover .arr{transform:translateX(-4px);}
+.case-hero{min-height:100vh;display:flex;flex-direction:column;padding:120px clamp(20px,5vw,80px) 0;position:relative;border-bottom:1px solid var(--line);overflow:hidden;}
+.case-tag{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:24px;display:flex;align-items:center;gap:16px;}
+.case-tag::before{content:'';width:30px;height:1px;background:var(--line-2);}
+.case-hero h1{font-size:clamp(36px,6.5vw,100px);font-weight:800;letter-spacing:-.03em;line-height:.92;color:var(--fg);margin:0;max-width:14ch;}
+.hero-graph{flex:1;min-height:260px;display:flex;align-items:center;justify-content:center;padding:40px 0 0;}
+#combo-canvas{max-width:100%;}
+.case-meta-row{display:flex;gap:clamp(30px,6vw,80px);flex-wrap:wrap;border-top:1px solid var(--line);padding:32px 0 40px;margin-top:auto;}
+.case-meta-item{display:flex;flex-direction:column;gap:8px;}
+.case-meta-item .label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);}
+.case-meta-item .val{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--fg-soft);}
+.case-body{max-width:960px;margin:0 auto;padding:0 clamp(20px,5vw,80px) 160px;}
+.case-section{padding:80px 0;border-bottom:1px solid var(--line);}
+.case-section:last-child{border-bottom:none;}
+.cs-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:32px;display:flex;align-items:center;gap:14px;}
+.cs-label::before{content:'';width:24px;height:1px;background:var(--line-2);}
+.case-section h2{font-size:clamp(22px,3.2vw,40px);font-weight:700;letter-spacing:-.02em;line-height:1.1;color:var(--fg);margin:0 0 24px;}
+.case-section p{font-size:clamp(14px,1.4vw,16px);color:var(--gray);line-height:1.85;letter-spacing:.02em;max-width:66ch;}
+.case-section p+p{margin-top:18px;}
+.impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px;}
+.impact-cell{background:var(--bg);padding:32px 24px;}
+.impact-cell .v{font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-.03em;line-height:1;color:var(--fg);}
+.impact-cell .v .u{font-size:.5em;color:var(--gray);font-weight:400;}
+.impact-cell .l{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:12px;line-height:1.6;}
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px;}
+.ba-cell{background:var(--bg);padding:28px 24px;}
+.ba-cell .ph{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;}
+.ba-cell h3{font-size:13px;font-weight:600;color:var(--fg-soft);margin:0 0 10px;}
+.ba-cell p{font-size:12px;color:var(--dim);line-height:1.65;}
+.pillar-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px;}
+.pillar{background:var(--bg);padding:28px 24px;}
+.pillar .pn{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;}
+.pillar h3{font-size:13px;font-weight:600;color:var(--fg-soft);margin:0 0 10px;}
+.pillar p{font-size:12px;color:var(--dim);line-height:1.65;}
+.pillar ul{margin-top:8px;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:4px;}
+.pillar ul li{font-family:var(--mono);font-size:11px;color:var(--gray);letter-spacing:.03em;}
+.pillar ul li::before{content:'▸ ';color:var(--dim);}
+.insight-block{border-left:1px solid var(--line-2);padding:20px 24px;margin-top:32px;max-width:66ch;}
+.insight-block .ib-label{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;}
+.insight-block p{font-size:14px;color:var(--fg-soft);line-height:1.75;margin:0;}
+.video-block{margin-top:0;position:relative;display:flex;justify-content:center;}
+.video-block video{width:60%;display:block;object-fit:cover;background:#000;}
+.flow-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:48px;}
+.flow-step{background:var(--bg);padding:26px 22px;}
+.flow-step .n{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:12px;}
+.flow-step .t{font-size:13px;font-weight:600;color:var(--fg-soft);margin-bottom:8px;}
+.flow-step .d{font-size:11px;color:var(--dim);line-height:1.65;font-family:var(--mono);}
+.case-next{display:flex;align-items:center;justify-content:space-between;padding:60px clamp(20px,5vw,80px);border-top:1px solid var(--line);text-decoration:none;color:var(--fg);transition:background .3s;}
+.case-next:hover{background:var(--panel);}
+.case-next .next-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;}
+.case-next .next-title{font-size:clamp(18px,2.5vw,28px);font-weight:700;letter-spacing:-.02em;}
+.case-next .arr{font-size:28px;color:var(--gray);transition:transform .3s var(--ease);}
+.case-next:hover .arr{transform:translateX(8px);}
+@media(max-width:900px){.impact-grid{grid-template-columns:1fr 1fr;}.before-after{grid-template-columns:1fr;}.pillar-grid{grid-template-columns:1fr;}.flow-steps{grid-template-columns:1fr;}}
+@media(max-width:600px){.hero-graph{display:none;}.impact-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body class="cur-hidden">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="aura-mark" viewBox="0 0 82 49">
+    <path d="M40.1253 7.26744C40.1253 6.8074 39.5393 6.46154 38.7628 6.46154C37.9864 6.46154 37.4004 6.8074 37.4004 7.26744V32.5152C37.4004 32.8941 37.3856 33.2847 37.3725 33.6636C37.3429 34.4397 37.3134 35.2423 37.402 36.0267L37.3987 40.8356C35.9263 40.7496 34.5802 40.6023 33.3047 40.3888C32.3001 40.22 31.302 40.0115 30.3434 39.7683C29.4996 39.5531 28.6263 39.3314 27.9894 38.9541C26.952 38.3385 26.4628 37.4234 26.6122 36.3808C26.6417 36.169 26.6745 35.9572 26.7057 35.747C26.8617 34.7326 27.0209 33.7182 27.1785 32.7022L27.4625 30.8802C27.886 28.1514 28.3095 25.4209 28.733 22.6921L30.2071 13.1967C30.3664 12.1707 30.5256 11.1464 30.6848 10.1204C30.7094 9.95985 30.7406 9.79933 30.7735 9.63053C30.8375 9.29626 30.9031 8.94875 30.9212 8.59792V8.58799C30.9245 8.57641 30.9278 8.56648 30.9294 8.55655C30.9984 8.11471 30.4895 7.75396 29.7459 7.71755C29.0548 7.6828 28.2898 7.9575 28.2094 8.47712L24.8163 30.3424C24.5438 32.0948 24.2713 33.8473 24.0005 35.5998C23.8232 36.7432 23.7395 37.9562 24.8212 39.1279C25.9851 40.3888 27.9582 40.9531 29.7147 41.3834C31.7732 41.8881 33.9761 42.234 36.2628 42.4144C37.1262 42.4822 37.988 42.5153 38.7169 42.5385C38.7431 42.5385 38.771 42.5385 38.7973 42.5385C39.2996 42.5385 39.7346 42.3813 39.9546 42.1181C40.0679 41.9973 40.1253 41.8633 40.1253 41.716L40.1286 36.0598V10.8121C40.1286 10.4331 40.1434 10.0426 40.1565 9.66363C40.1844 8.88752 40.2156 8.08492 40.127 7.30054V7.2691L40.1253 7.26744Z"/>
+    <path d="M58.0316 31.124L57.7815 29.4681C57.7751 29.4284 57.7703 29.3887 57.7655 29.349C57.727 29.0628 57.6837 28.7386 57.3919 28.4292C57.0344 28.0521 56.4829 27.8056 55.8945 27.6335C57.3711 26.8924 57.2172 25.7559 57.0937 24.8378L57.0793 24.727C56.9254 23.5723 56.7506 22.3382 56.5454 20.9519C56.3193 19.4267 56.0596 17.8783 55.8095 16.3812C55.5049 14.5648 55.1907 12.6872 54.9325 10.8394C54.7161 9.2811 53.6243 8.06852 51.8575 7.42501C50.7961 7.03792 49.568 6.89234 48.4858 6.76496L48.3399 6.74842C47.0317 6.59292 45.6689 6.49697 44.2869 6.46223C43.8107 6.45065 43.3907 6.58465 43.1502 6.82121C43.1422 6.82948 43.1341 6.83609 43.1293 6.84106L43.0941 6.87745C42.9818 6.99821 42.9241 7.13717 42.9241 7.28109V40.3151C42.9241 40.4624 42.9177 40.6096 42.9113 40.7568C42.9001 41.0629 42.8905 41.3805 42.9225 41.6948V41.7312C42.9225 42.0306 43.171 42.2936 43.5879 42.4342C43.7931 42.5037 44.024 42.5385 44.2532 42.5385C44.4825 42.5385 44.7134 42.5037 44.9186 42.4359C45.3354 42.2953 45.5839 42.0339 45.5839 41.7328C45.5839 40.5914 45.5839 39.4483 45.5839 38.3052V30.0752C45.5839 29.6286 45.5839 29.1836 45.5839 28.7369C46.2092 28.7204 46.8457 28.6989 47.479 28.6691C48.1604 28.6575 48.8706 28.6559 49.5889 28.6625C50.6374 28.6724 51.8703 28.7005 53.0567 28.8279L53.1144 28.8345C53.7974 28.9073 54.6488 28.9983 55.0672 29.2415C55.0752 29.2464 55.0816 29.2514 55.0864 29.2547C55.0929 29.2894 55.0977 29.3308 55.1025 29.3738C55.1057 29.4119 55.1105 29.4483 55.1169 29.4846L55.3462 31.0066C55.5225 32.1745 55.6989 33.3407 55.8752 34.5087L56.531 38.8495C56.6095 39.3689 57.3535 39.6435 58.03 39.6104C58.7547 39.574 59.2533 39.2134 59.186 38.7717C58.8012 36.2241 58.4164 33.6766 58.0316 31.129V31.124Z"/>
+    <path d="M25.6069 12.2372C25.749 11.3618 25.8894 10.4847 26.0315 9.60928C26.0626 9.53539 26.0724 9.45828 26.0626 9.37958C26.074 9.0037 25.6395 8.70011 25.0009 8.63746C24.6726 8.59088 24.328 8.61819 24.0226 8.71778C21.7359 9.45507 19.5538 10.4044 17.7131 11.4646C13.4093 13.9431 10.4007 17.2746 9.24599 20.8486C9.03693 21.4959 8.88503 22.1609 8.79356 22.8292C8.74783 22.932 8.73477 23.0364 8.75437 23.1392C8.38687 26.5317 9.56775 29.8953 12.1745 32.8734C12.3934 33.1224 12.7821 33.2766 13.2427 33.2942C13.7196 33.3135 14.1933 33.1802 14.4775 32.9473C14.7731 32.7047 14.8091 32.3995 14.5739 32.1313C12.867 30.1812 11.8021 28.0079 11.4967 25.8474C11.4379 25.4282 11.4036 25.0041 11.3971 24.5784C14.0185 25.5888 17.0679 26.4273 20.493 27.0811L20.3476 27.9854C19.9867 30.223 19.6241 32.4606 19.2631 34.6982C19.188 35.1656 19.139 35.4772 19.0916 35.7888C19.0442 36.0989 18.9969 36.4089 18.9217 36.8747C18.8531 37.302 19.3562 37.6521 20.0945 37.6891C20.1337 37.6907 20.1745 37.6923 20.2137 37.6923C20.8686 37.6923 21.5497 37.4289 21.6281 36.9454L21.6314 36.9181C21.7947 36.1936 21.8552 35.7182 21.9254 35.1688C21.9662 34.8491 22.0087 34.5182 22.0773 34.1006L24.524 18.9499C24.885 16.7124 25.2476 14.4748 25.6085 12.2372H25.6069Z"/>
+    <path d="M64.2862 11.4643C62.4456 10.4041 60.2637 9.45476 57.9773 8.71745C57.6718 8.61947 57.3272 8.59055 56.999 8.63714C56.3588 8.69978 55.9244 9.00338 55.9374 9.37926C55.9276 9.45797 55.9374 9.53507 55.9685 9.60896C56.1105 10.4844 56.251 11.3615 56.3931 12.2369C56.754 14.4745 57.1149 16.7121 57.4775 18.9497L59.924 34.1006C59.9909 34.5182 60.0334 34.8491 60.0759 35.1688C60.1461 35.7181 60.2082 36.1936 60.3698 36.9181L60.3731 36.9454C60.4515 37.4273 61.1325 37.6923 61.7874 37.6923C61.8266 37.6923 61.8674 37.6923 61.9066 37.6891C62.6448 37.6522 63.1479 37.302 63.0793 36.8747C63.0041 36.4105 62.9568 36.1004 62.9094 35.7888C62.862 35.4772 62.813 35.1656 62.7379 34.6981C62.377 32.4605 62.0161 30.2229 61.6535 27.9853L61.5082 27.0809C64.9313 26.4272 67.982 25.5871 70.6032 24.5783C70.5967 25.0024 70.564 25.4264 70.5036 25.8473C70.1982 28.0078 69.1334 30.1811 67.4267 32.1312C67.1916 32.4011 67.2275 32.7063 67.5231 32.9472C67.8073 33.1801 68.2792 33.3135 68.7578 33.2942C69.2183 33.2765 69.6086 33.1223 69.8259 32.8733C72.4308 29.8968 73.6132 26.5316 73.2457 23.139C73.2653 23.0362 73.2522 22.9302 73.2065 22.829C73.115 22.1608 72.9632 21.4958 72.7541 20.8484C71.5978 17.2743 68.5912 13.9428 64.2878 11.4643H64.2862Z"/>
+    <path d="M69.7449 6.98736C62.0473 2.48184 51.8394 0 41 0C30.1606 0 19.9527 2.48184 12.2551 6.98736C4.3512 11.6132 0 17.8328 0 24.5C0 31.1672 4.353 37.3868 12.2551 42.0126C19.9527 46.5182 30.1606 49 41 49C51.8394 49 62.0473 46.5182 69.7449 42.0126C77.6488 37.3868 82 31.1672 82 24.5C82 17.8328 77.647 11.6132 69.7449 6.98736Z"/>
+  </symbol>
+</svg>
+<a href="#main-content" class="sr-only" style="position:absolute;left:-9999px;top:0;z-index:9999;padding:8px 14px;background:var(--fg);color:var(--bg);font-family:var(--mono);font-size:11px;">Skip to main content</a>
+<canvas id="bg-canvas"></canvas>
+<div class="scanlines flicker"></div>
+<div class="vignette"></div>
+<div id="cursor"></div><div id="cursor-dot"></div><div id="cursor-label"></div>
+<div class="scan-progress" id="progress"></div>
+<a class="case-back" id="case-back" aria-label="Back to work" href="../Aura Portfolio.html"><span class="arr">←</span> work</a>
+<header class="topbar" id="topbar">
+  <a class="brand" href="../Aura Portfolio.html" data-magnetic aria-label="Aura — home">
+    <svg class="brand-mark" viewBox="0 0 82 49" style="color:var(--gray)"><use href="#aura-mark"/></svg>
+  </a>
+  <button class="nav-toggle" id="nav-toggle">[ menu ]</button>
+  <nav class="nav" id="nav">
+    <a href="../Aura Portfolio.html#about" data-scramble><span class="idx">01</span>about</a>
+    <a href="../Aura Portfolio.html#work" data-scramble><span class="idx">02</span>work</a>
+    <a href="../Aura Portfolio.html#certs" data-scramble><span class="idx">03</span>certifications</a>
+    <a href="../Aura Portfolio.html#contact" data-scramble><span class="idx">04</span>contact</a>
+  </nav>
+</header>
+<main id="main-content">
+  <section class="case-hero">
+    <div class="case-tag">PRJ_03 &nbsp;·&nbsp; Itaú &nbsp;·&nbsp; 2025</div>
+    <h1 class="reveal">Combinaqui</h1>
+    <div class="hero-graph"><canvas id="combo-canvas"></canvas></div>
+    <div class="case-meta-row">
+      <div class="case-meta-item"><span class="label">Role</span><span class="val">Product Design</span></div>
+      <div class="case-meta-item"><span class="label">Company</span><span class="val">Itaú</span></div>
+      <div class="case-meta-item"><span class="label">Year</span><span class="val">2025</span></div>
+      <div class="case-meta-item"><span class="label">Type</span><span class="val">Subscription · Ecosystem · JTBD</span></div>
+    </div>
+  </section>
+  <div class="case-body">
+
+    <!-- 01 IMPACT -->
+    <section class="case-section reveal">
+      <div class="cs-label">01 — impact</div>
+      <h2>One combination. Measurable results.</h2>
+      <p>The Globoplay partnership launched in September 2025 became the proof point for the entire Combinaqui strategy — validated by usability testing with ~200 users and commercial data from the first 48 hours post-launch.</p>
+      <div class="impact-grid">
+        <div class="impact-cell"><div class="v">4.3<span class="u">/5</span></div><div class="l">Customer Effort<br/>Score</div></div>
+        <div class="impact-cell"><div class="v">86<span class="u">%</span></div><div class="l">System Usability<br/>Metric</div></div>
+        <div class="impact-cell"><div class="v">1.5<span class="u">M</span></div><div class="l">New Globoplay<br/>subscribers (2025)</div></div>
+        <div class="impact-cell"><div class="v">R$250<span class="u">M</span></div><div class="l">Advertising revenue<br/>impact (TV Globo)</div></div>
+      </div>
+      <div class="insight-block" style="margin-top:40px;">
+        <div class="ib-label">48h post-launch</div>
+        <p>Agency foot traffic at Itaú branches increased 12%. Customers weren't just signing up online — they wanted to talk about it in person. The experience had become worth talking about.</p>
+      </div>
+    </section>
+
+    <!-- 02 OVERVIEW -->
+    <section class="case-section reveal">
+      <div class="cs-label">02 — overview</div>
+      <h2>From aggregation to integration</h2>
+      <p>When Combinaqui launched in 2023, the ambition was clear: empower people to improve their financial well-being beyond traditional banking products. But the initial version missed something fundamental. We were aggregating services — not solving the underlying problem.</p>
+      <p>Customers didn't want more products. They wanted <em>the right combination</em> — accessible, simple, and meaningful to their actual goals. Our 40+ million user base gave us a massive opportunity. The 2025 redesign solved it.</p>
+    </section>
+
+    <!-- 03 THE PROBLEM -->
+    <section class="case-section reveal">
+      <div class="cs-label">03 — the problem</div>
+      <h2>Eleven subscriptions. Zero coherence.</h2>
+      <p>A customer opens their banking app and sees eleven separate subscriptions across streaming, insurance, and utilities. Each with a different login, different interface, different billing date. The experience is fragmented, exhausting, and impossible to optimise.</p>
+      <div class="insight-block">
+        <div class="ib-label">Core insight</div>
+        <p>When people want to improve their financial well-being, they want an integrated platform that combines offers in one place — so they can make smarter choices, save money, and access solutions that fit their lifestyle.</p>
+      </div>
+    </section>
+
+    <!-- 04 APPROACH -->
+    <section class="case-section reveal">
+      <div class="cs-label">04 — approach</div>
+      <h2>Three shifts that changed everything</h2>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="n">SHIFT_01</div>
+          <div class="t">Job-to-Be-Done reframe</div>
+          <div class="d">Stopped asking "How do we show more products?" Started asking "What job does the customer want done?" Answer: simplify subscription chaos into a single, personalised decision.</div>
+        </div>
+        <div class="flow-step">
+          <div class="n">SHIFT_02</div>
+          <div class="t">Content-first architecture</div>
+          <div class="d">Redesigned the product page around stories, not feature lists. Why cashback? Because freedom of choice generates savings. Why combine? Because unified management saves time. Structure aligned to the job.</div>
+        </div>
+        <div class="flow-step">
+          <div class="n">SHIFT_03</div>
+          <div class="t">Real-time activation control</div>
+          <div class="d">Added visibility into the activation process. Customers see their status in real time — no mystery, no waiting, no support tickets. Manage services wherever they prefer.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 BEFORE / AFTER -->
+    <section class="case-section reveal">
+      <div class="cs-label">05 — experience changes</div>
+      <h2>What changed in the journey</h2>
+      <div class="before-after">
+        <div class="ba-cell">
+          <div class="ph">BEFORE</div>
+          <h3>Static product grid</h3>
+          <p>Customers saw 11+ services listed individually. Checkout was multi-step with unclear value proposition. Savings were invisible, combinations were manual, payment was single-rail (direct debit only).</p>
+        </div>
+        <div class="ba-cell">
+          <div class="ph">AFTER</div>
+          <h3>Interactive combo builder</h3>
+          <p>Feature discovery through story modules. Intelligent combo recommendations based on product affinity. Clear savings highlighted upfront (up to 87%). Reduced checkout friction. Credit card + BNPL + Pix Parcelado added.</p>
+        </div>
+      </div>
+      <div class="insight-block">
+        <div class="ib-label">+9% SUM improvement</div>
+        <p>Based on ~200 guerrilla test respondents. The improvement over the previous journey validated our content-first approach — customers felt the experience was effortless and understood the value immediately.</p>
+      </div>
+    </section>
+
+    <!-- 06 VIDEO -->
+    <section class="case-section reveal" style="padding:0;border-bottom:1px solid var(--line);">
+      <div class="video-block">
+        <video id="exp-video" muted playsinline preload="metadata" loop style="width: 361px; height: 765px">
+          <source src="../uploads/Screen-Recording-2025-10-07-at-17.46.10.mp4" type="video/mp4"/>
+        </video>
+      </div>
+    </section>
+
+    <!-- 07 STRATEGY -->
+    <section class="case-section reveal">
+      <div class="cs-label">07 — next phase</div>
+      <h2>Building the ecosystem: 2025–2026</h2>
+      <p>Globoplay proved the model works. Now we're scaling systematically across payment methods, partner categories, and user segments.</p>
+      <div class="pillar-grid">
+        <div class="pillar">
+          <div class="pn">PILLAR_01</div>
+          <h3>Payment method expansion</h3>
+          <p>Direct debit is reliable but reaches only account holders. We're adding:</p>
+          <ul>
+            <li>Credit card (41% of Brazil's online transactions)</li>
+            <li>BNPL (14% YoY growth, USD 4.66B market)</li>
+            <li>Pix Parcelado (Central Bank, Sep 2025)</li>
+          </ul>
+        </div>
+        <div class="pillar">
+          <div class="pn">PILLAR_02</div>
+          <h3>Partner ecosystem scale</h3>
+          <p>Globoplay is one. Targeting 5–7 new major partners quarterly:</p>
+          <ul>
+            <li>Streaming (proven model)</li>
+            <li>Insurance (high-margin recurring)</li>
+            <li>Utilities (new category, high frequency)</li>
+            <li>Fintech integrations</li>
+          </ul>
+        </div>
+        <div class="pillar">
+          <div class="pn">PILLAR_03</div>
+          <h3>Lifetime value optimisation</h3>
+          <p>We know which combo each customer chose. Now we personalise:</p>
+          <ul>
+            <li>AI-driven recommendations by usage patterns</li>
+            <li>Upgrade/downgrade pathways (not just cancel)</li>
+            <li>Target: −12% 6-month churn</li>
+          </ul>
+        </div>
+        <div class="pillar">
+          <div class="pn">PILLAR_04</div>
+          <h3>International expansion</h3>
+          <p>Itaú's regional presence creates Latin America opportunity:</p>
+          <ul>
+            <li>Colombia pilot — Q4 2025</li>
+            <li>Mexico expansion — 2026</li>
+            <li>Adapted payment rails, same JTBD</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <a class="case-next" href="credit-card-journey.html">
+    <div>
+      <div class="next-label">next case →</div>
+      <div class="next-title">Credit card journey</div>
+    </div>
+    <span class="arr">↗</span>
+  </a>
+</main>
+<div class="corner bl">PRJ_03 · ITAÚ · 2025</div>
+<script>
+// ── layers-to-box animation ─────────────────────────────
+(function(){
+  var c = document.getElementById('combo-canvas');
+  if(!c) return;
+  var ctx = c.getContext('2d');
+  var DPR = window.devicePixelRatio||1;
+  var W=700, H=320;
+  c.width=W*DPR; c.height=H*DPR;
+  c.style.width=W+'px'; c.style.height=H+'px';
+  ctx.scale(DPR,DPR);
+
+  var LW=160, LH=38, GAP=10;
+  var labels=['STREAMING','INSURANCE','UTILITIES','FINTECH'];
+  var N=labels.length;
+  var BOX_W=180, BOX_H=N*(LH+GAP)-GAP+28;
+  var bx=W/2-BOX_W/2, by=H/2-BOX_H/2;
+
+  // each layer: home pos (scattered), stack pos
+  var layers=labels.map(function(lbl,i){
+    var stackY=by+14+i*(LH+GAP);
+    var stackX=bx+(BOX_W-LW)/2;
+    // home positions: two on left, two on right
+    var hx = i%2===0 ? 60 : W-60-LW;
+    var hy = i<2 ? 80 : H-80-LH;
+    return {label:lbl, hx:hx, hy:hy, sx:stackX, sy:stackY, x:hx, y:hy, glow:0};
+  });
+
+  // phase: 0=floating, 1=converging, 2=assembled, 3=dispersing
+  var phase=0, pt=0;
+  var DUR=[160,90,100,70]; // frames per phase
+
+  function ease(t){return t<0.5?2*t*t:-1+(4-2*t)*t;}
+  function lerp(a,b,t){return a+(b-a)*t;}
+
+  function rr(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+
+  function drawLayer(x,y,lbl,alpha,g){
+    // glow
+    if(g>0.04){
+      ctx.save();ctx.shadowColor='rgba(200,200,215,'+(g*0.5)+')';ctx.shadowBlur=14;
+      rr(x,y,LW,LH,3);ctx.strokeStyle='rgba(200,200,215,'+(g*0.8)+')';ctx.lineWidth=1;ctx.stroke();
+      ctx.restore();
+    }
+    rr(x,y,LW,LH,3);
+    ctx.fillStyle='rgba(13,13,20,'+alpha+')';ctx.fill();
+    ctx.strokeStyle='rgba(160,160,175,'+(alpha*(0.3+g*0.7))+')';ctx.lineWidth=1;ctx.stroke();
+    ctx.textAlign='center';ctx.font='600 10px monospace';
+    ctx.fillStyle='rgba(170,170,185,'+(alpha*(0.7+g*0.3))+')';
+    ctx.fillText(lbl,x+LW/2,y+LH/2+4);
+  }
+
+  function drawBox(alpha){
+    // outer box
+    rr(bx,by,BOX_W,BOX_H,4);
+    ctx.fillStyle='rgba(10,10,16,'+alpha+')';ctx.fill();
+    ctx.strokeStyle='rgba(180,180,190,'+(alpha*0.5)+')';ctx.lineWidth=1;ctx.stroke();
+    // label
+    ctx.textAlign='center';ctx.font='700 11px monospace';
+    ctx.fillStyle='rgba(200,200,210,'+(alpha*0.9)+')';
+    ctx.fillText('COMBINAQUI',W/2,by+BOX_H+20);
+  }
+
+  var floatOff=[0,Math.PI*0.5,Math.PI,Math.PI*1.5];
+
+  function draw(){
+    requestAnimationFrame(draw);
+    pt++;
+    if(pt>=DUR[phase]){pt=0;phase=(phase+1)%4;}
+    var t=ease(pt/DUR[phase]);
+
+    ctx.clearRect(0,0,W,H);
+
+    if(phase===0){
+      // gentle float
+      layers.forEach(function(l,i){
+        var fy=l.hy+Math.sin(Date.now()*0.0008+floatOff[i])*8;
+        l.x=l.hx; l.y=fy;
+        drawLayer(l.x,l.y,l.label,0.9,0);
+      });
+    } else if(phase===1){
+      // converge
+      layers.forEach(function(l,i){
+        var delay=i*0.15;
+        var lt=Math.max(0,Math.min(1,(t-delay)/(1-delay*N*0.15)));
+        lt=ease(lt);
+        l.x=lerp(l.hx,l.sx,lt);
+        l.y=lerp(l.hy,l.sy,lt);
+        var g=lt*0.6;
+        drawLayer(l.x,l.y,l.label,0.9,g);
+      });
+      drawBox(t*0.4);
+    } else if(phase===2){
+      // assembled — subtle pulse
+      var pulse=0.5+0.5*Math.sin(Date.now()*0.003);
+      layers.forEach(function(l,i){
+        l.x=l.sx; l.y=l.sy;
+        drawLayer(l.x,l.y,l.label,0.9,0.3+pulse*0.4);
+      });
+      drawBox(0.9+pulse*0.1);
+    } else {
+      // disperse
+      layers.forEach(function(l,i){
+        var delay=i*0.1;
+        var lt=Math.max(0,Math.min(1,(t-delay)/(1-delay*N*0.1)));
+        lt=ease(lt);
+        l.x=lerp(l.sx,l.hx,lt);
+        l.y=lerp(l.sy,l.hy,lt);
+        drawLayer(l.x,l.y,l.label,0.9,0.3*(1-lt));
+      });
+      drawBox(0.9*(1-t));
+    }
+  }
+  draw();
+})();
+</script>
+<script>
+(function(){
+  var btn=document.getElementById('case-back');
+  if(!btn)return;
+  btn.addEventListener('click',function(e){
+    var s=sessionStorage.getItem('aura-return-y');
+    if(s&&window.history.length>1){e.preventDefault();window.history.back();}
+  });
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous"></script>
+<script>
+(function(){
+  var v = document.getElementById('exp-video');
+  if(!v) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ v.play(); } else { v.pause(); }
+    });
+  }, { threshold: 0.3 });
+  obs.observe(v);
+})();
+</script>
+<script src="../js/bg.js"></script>
+<script src="../js/cursor.js"></script>
+<script src="../js/scramble.js"></script>
+<script src="../js/sections-falling.js"></script>
+<script src="../js/main.js"></script>
+</body>
+</html>
